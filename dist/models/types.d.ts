@@ -26,6 +26,7 @@ export interface IAnimeResult {
     rating?: number;
     type?: MediaFormat;
     releaseDate?: string;
+    relationType?: string;
     [x: string]: any;
 }
 export interface ISearch<T> {
@@ -184,6 +185,14 @@ export declare enum MediaStatus {
     CANCELLED = "Cancelled",
     NOT_YET_AIRED = "Not yet aired",
     UNKNOWN = "Unknown"
+}
+export declare enum WatchListType {
+    WATCHING = "watching",
+    ONHOLD = "on-hold",
+    PLAN_TO_WATCH = "plan to watch",
+    DROPPED = "dropped",
+    COMPLETED = "completed",
+    NONE = "none"
 }
 export declare enum SubOrSub {
     SUB = "sub",
