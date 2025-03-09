@@ -13,6 +13,7 @@ import {
   SubOrSub,
   IAnimeEpisode,
   MediaStatus,
+  Intro,
 } from '../../models';
 
 import { MegaUp } from '../../utils';
@@ -71,6 +72,17 @@ class AnimeKai extends AnimeParser {
     }
     return this.scrapeCardPage(`${this.baseUrl}/recent?page=${page}`);
   }
+
+  /**
+   * @param page number
+   */
+  fetchRecentlyUpdated(page: number = 1): Promise<ISearch<IAnimeResult>> {
+    if (0 >= page) {
+      page = 1;
+    }
+    return this.scrapeCardPage(`${this.baseUrl}/updates?page=${page}`);
+  }
+
   /**
    * @param page number
    */
@@ -406,6 +418,7 @@ class AnimeKai extends AnimeParser {
         const number = parseInt($$(el).attr('num')!);
         const title = $$(el).children('span').text().trim();
         const url = `${this.baseUrl}/watch/${info.id}${$$(el).attr('href')}ep=${$$(el).attr('num')}`;
+        const isFiller = $$(el).hasClass('filler');
         const isSubbed = number <= (parseInt($('.entity-scroll > .info > span.sub').text().trim()) || 0);
         const isDubbed = number <= (parseInt($('.entity-scroll > .info > span.dub').text().trim()) || 0);
 
@@ -413,6 +426,7 @@ class AnimeKai extends AnimeParser {
           id: episodeId,
           number: number,
           title: title,
+          isFiller: isFiller,
           isSubbed: isSubbed,
           isDubbed: isDubbed,
           url: url,
@@ -439,7 +453,7 @@ class AnimeKai extends AnimeParser {
     if (episodeId.startsWith('http')) {
       const serverUrl = new URL(episodeId);
       switch (server) {
-        case StreamingServers.MixDrop:
+        case StreamingServers.MegaUp:
           return {
             headers: { Referer: serverUrl.href },
             ...(await new MegaUp(this.proxyConfig, this.adapter).extract(serverUrl)),
@@ -461,8 +475,10 @@ class AnimeKai extends AnimeParser {
       }
 
       const serverUrl: URL = new URL(servers[i].url);
-
-      return await this.fetchEpisodeSources(serverUrl.href, server, subOrDub);
+      const sources = await this.fetchEpisodeSources(serverUrl.href, server, subOrDub);
+      sources.intro = servers[i]?.intro as Intro;
+      sources.outro = servers[i]?.outro as Intro;
+      return sources;
     } catch (err) {
       throw new Error((err as Error).message);
     }
@@ -571,9 +587,18 @@ class AnimeKai extends AnimeParser {
             `${this.baseUrl}/ajax/links/view?id=${id}&_=${GenerateToken(id!)}`,
             { headers: this.Headers() }
           );
+          const decodedData = JSON.parse(DecodeIframeData(data.result));
           servers.push({
             name: `MegaUp ${$(server).text().trim()}`!, //megaup is the only server for now
-            url: JSON.parse(DecodeIframeData(data.result)).url,
+            url: decodedData.url,
+            intro: {
+              start: decodedData?.skip.intro[0],
+              end: decodedData?.skip.intro[1],
+            },
+            outro: {
+              start: decodedData?.skip.outro[0],
+              end: decodedData?.skip.outro[1],
+            },
           });
         })
       );

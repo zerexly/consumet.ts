@@ -120,12 +120,14 @@ class AnimeKai extends models_1.AnimeParser {
                     const number = parseInt($$(el).attr('num'));
                     const title = $$(el).children('span').text().trim();
                     const url = `${this.baseUrl}/watch/${info.id}${$$(el).attr('href')}ep=${$$(el).attr('num')}`;
+                    const isFiller = $$(el).hasClass('filler');
                     const isSubbed = number <= (parseInt($('.entity-scroll > .info > span.sub').text().trim()) || 0);
                     const isDubbed = number <= (parseInt($('.entity-scroll > .info > span.dub').text().trim()) || 0);
                     (_a = info.episodes) === null || _a === void 0 ? void 0 : _a.push({
                         id: episodeId,
                         number: number,
                         title: title,
+                        isFiller: isFiller,
                         isSubbed: isSubbed,
                         isDubbed: isDubbed,
                         url: url,
@@ -144,10 +146,11 @@ class AnimeKai extends models_1.AnimeParser {
          * @param subOrDub sub or dub (default `SubOrSub.SUB`) (optional)
          */
         this.fetchEpisodeSources = async (episodeId, server = models_1.StreamingServers.MegaUp, subOrDub = models_1.SubOrSub.SUB) => {
+            var _a, _b;
             if (episodeId.startsWith('http')) {
                 const serverUrl = new URL(episodeId);
                 switch (server) {
-                    case models_1.StreamingServers.MixDrop:
+                    case models_1.StreamingServers.MegaUp:
                         return {
                             headers: { Referer: serverUrl.href },
                             ...(await new utils_1.MegaUp(this.proxyConfig, this.adapter).extract(serverUrl)),
@@ -166,7 +169,10 @@ class AnimeKai extends models_1.AnimeParser {
                     throw new Error(`Server ${server} not found`);
                 }
                 const serverUrl = new URL(servers[i].url);
-                return await this.fetchEpisodeSources(serverUrl.href, server, subOrDub);
+                const sources = await this.fetchEpisodeSources(serverUrl.href, server, subOrDub);
+                sources.intro = (_a = servers[i]) === null || _a === void 0 ? void 0 : _a.intro;
+                sources.outro = (_b = servers[i]) === null || _b === void 0 ? void 0 : _b.outro;
+                return sources;
             }
             catch (err) {
                 throw new Error(err.message);
@@ -264,9 +270,18 @@ class AnimeKai extends models_1.AnimeParser {
                 await Promise.all(serverItems.map(async (i, server) => {
                     const id = $(server).attr('data-lid');
                     const { data } = await this.client.get(`${this.baseUrl}/ajax/links/view?id=${id}&_=${GenerateToken(id)}`, { headers: this.Headers() });
+                    const decodedData = JSON.parse(DecodeIframeData(data.result));
                     servers.push({
                         name: `MegaUp ${$(server).text().trim()}`, //megaup is the only server for now
-                        url: JSON.parse(DecodeIframeData(data.result)).url,
+                        url: decodedData.url,
+                        intro: {
+                            start: decodedData === null || decodedData === void 0 ? void 0 : decodedData.skip.intro[0],
+                            end: decodedData === null || decodedData === void 0 ? void 0 : decodedData.skip.intro[1],
+                        },
+                        outro: {
+                            start: decodedData === null || decodedData === void 0 ? void 0 : decodedData.skip.outro[0],
+                            end: decodedData === null || decodedData === void 0 ? void 0 : decodedData.skip.outro[1],
+                        },
                     });
                 }));
                 return servers;
@@ -314,6 +329,15 @@ class AnimeKai extends models_1.AnimeParser {
             page = 1;
         }
         return this.scrapeCardPage(`${this.baseUrl}/recent?page=${page}`);
+    }
+    /**
+     * @param page number
+     */
+    fetchRecentlyUpdated(page = 1) {
+        if (0 >= page) {
+            page = 1;
+        }
+        return this.scrapeCardPage(`${this.baseUrl}/updates?page=${page}`);
     }
     /**
      * @param page number
