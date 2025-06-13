@@ -34,7 +34,7 @@ const image_data = {
     data: megacloud_decodedpng_1.decoded_png,
 };
 const canvas = {
-    baseUrl: 'https://megacloud.tv/embed-2/e-1/1hnXq7VzX0Ex?k=1',
+    baseUrl: 'https://megacloud.blog/embed-2/v2/e-1/1hnXq7VzX0Ex?k=1',
     width: 0,
     height: 0,
     style: {
@@ -59,10 +59,10 @@ const fake_window = {
     document: {
         cookie: '',
     },
-    origin: 'https://megacloud.tv',
+    origin: 'https://megacloud.blog',
     location: {
-        href: 'https://megacloud.tv/embed-2/e-1/1hnXq7VzX0Ex?k=1',
-        origin: 'https://megacloud.tv',
+        href: 'https://megacloud.blog/embed-2/v2/e-1/1hnXq7VzX0Ex?k=1',
+        origin: 'https://megacloud.blog',
     },
     performance: {
         timeOrigin: dateNow,
@@ -79,7 +79,7 @@ const fake_window = {
 };
 const nodeList = {
     image: {
-        src: 'https://megacloud.tv/images/image.png?v=0.1.0',
+        src: 'https://megacloud.blog/images/image.png?v=0.1.0',
         height: 50,
         width: 65,
         complete: true,
@@ -597,7 +597,7 @@ const grootLoader = {
 let wasmLoader = Object.assign(loadWasm, { initSync: QZ }, grootLoader);
 const V = async () => {
     try {
-        let Q0 = await wasmLoader('https://megacloud.tv/images/loading.png?v=0.0.9');
+        let Q0 = await wasmLoader('https://megacloud.blog/images/loading.png?v=0.0.9');
         fake_window.bytes = Q0;
         wasmLoader.groot();
         fake_window.jwt_plugin(Q0);
@@ -654,6 +654,11 @@ function transformURL(url) {
     }
     return null;
 }
+async function megaCloudKey() {
+    const resp = await fetch('https://superbillgalaxy.github.io/megacloud-keys/api.json');
+    const data = await resp.json();
+    return data.megacloud;
+}
 async function getSources(embed_url, site) {
     var _b, _c;
     await getMeta(embed_url, site);
@@ -670,20 +675,7 @@ async function getSources(embed_url, site) {
         await V();
         let getSourcesUrl = '';
         if (base_url.includes('mega')) {
-            getSourcesUrl =
-                base_url +
-                    '/' +
-                    test[3] +
-                    '/ajax/' +
-                    test[4] +
-                    '/getSources?id=' +
-                    fake_window.pid +
-                    '&v=' +
-                    fake_window.localStorage.kversion +
-                    '&h=' +
-                    fake_window.localStorage.kid +
-                    '&b=' +
-                    browser_version;
+            getSourcesUrl = base_url + '/embed-2/v2/e-1/getSources?id=' + xrax;
         }
         else {
             getSourcesUrl =
@@ -721,8 +713,10 @@ async function getSources(embed_url, site) {
         Q8 = resp_json.t != 0 ? (i(Q5, Q1), Q5) : ((Q8 = resp_json.k), i(Q8, Q1), Q8);
         // @ts-ignore
         const str = btoa(String.fromCharCode.apply(null, new Uint8Array(Q8)));
+        const apiKey = await megaCloudKey();
+        const keyToUse = !apiKey || apiKey.trim() === '' ? str : apiKey;
         // @ts-ignore
-        resp_json.sources = M(resp_json.sources, str);
+        resp_json.sources = M(resp_json.sources, keyToUse);
         return resp_json;
     }
     catch (err) {
