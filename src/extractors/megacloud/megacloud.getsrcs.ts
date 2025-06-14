@@ -710,7 +710,7 @@ function transformURL(url: string) {
 }
 
 async function megaCloudKey() {
-  const resp = await fetch('https://superbillgalaxy.github.io/megacloud-keys/api.json');
+  const resp = await fetch('https://raw.githubusercontent.com/carlosesteven/e1-player-deobf/main/key.json');
   const data = await resp.json();
   return data.megacloud;
 }

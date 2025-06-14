@@ -1,18 +1,7 @@
-import { VideoExtractor } from '../../models';
+import { ISource, IVideo, VideoExtractor } from '../../models';
 declare class MegaCloud extends VideoExtractor {
-    serverName: string;
-    sources: never[];
-    extract(embedIframeURL: URL, referer?: string): Promise<{
-        intro: {
-            start: number;
-            end: number;
-        };
-        outro: {
-            start: number;
-            end: number;
-        };
-        sources: never[];
-        subtitles: never[];
-    }>;
+    protected serverName: string;
+    protected sources: IVideo[];
+    extract(embedIframeURL: URL, referer?: string): Promise<ISource>;
 }
 export default MegaCloud;

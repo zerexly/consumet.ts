@@ -1,13 +1,13 @@
-import { VideoExtractor } from '../../models';
-import axios from 'axios';
+import { ISource, IVideo, VideoExtractor } from '../../models';
+import { getSources } from './megacloud.getsrcs';
 
 class MegaCloud extends VideoExtractor {
-  serverName = 'MegaCloud';
-  sources = [];
+  protected override serverName = 'MegaCloud';
+  protected override sources: IVideo[] = [];
 
   async extract(embedIframeURL: URL, referer: string = 'https://hianime.to') {
     try {
-      const extractedData = {
+      const extractedData: ISource = {
         subtitles: [],
         intro: {
           start: 0,
@@ -20,40 +20,32 @@ class MegaCloud extends VideoExtractor {
         sources: [],
       };
 
-      const match = /\/([^\/\?]+)\?/.exec(embedIframeURL.href);
-      const sourceId = match?.[1];
-      if (!sourceId) throw new Error('Unable to extract sourceId from embed URL');
+      const resp = await getSources(embedIframeURL.href, referer);
 
-      const megacloudUrl = `https://megacloud.blog/embed-2/v2/e-1/getSources?id=${sourceId}`;
-      const { data: rawSourceData } = await axios.get(megacloudUrl);
+      if (!resp) return extractedData;
 
-      const bypassUrl = `https://bypass.lunaranime.ru/extract?url=${encodeURIComponent(megacloudUrl)}`;
-      const { data: bypassData } = await axios.get(bypassUrl);
-
-      if (!bypassData?.sources || !Array.isArray(bypassData.sources) || bypassData.sources.length === 0) {
-        throw new Error('No sources found in bypass response');
+      if (Array.isArray(resp.sources)) {
+        extractedData.sources = resp.sources.map((s: { file: any; type: string }) => ({
+          url: s.file,
+          isM3U8: s.type === 'hls',
+          type: s.type,
+        }));
       }
 
-      extractedData.sources = bypassData.sources.map((s: any) => ({
-        url: s.file,
-        isM3U8: s.type === 'hls',
-        type: s.type,
-      }));
+      extractedData.intro = resp.intro ? resp.intro : extractedData.intro;
+      extractedData.outro = resp.outro ? resp.outro : extractedData.outro;
 
-      extractedData.intro = rawSourceData.intro ? rawSourceData.intro : extractedData.intro;
-      extractedData.outro = rawSourceData.outro ? rawSourceData.outro : extractedData.outro;
-      extractedData.subtitles =
-        rawSourceData.tracks?.map((track: any) => ({
-          url: track.file,
-          lang: track.label ? track.label : track.kind,
-        })) || [];
+      extractedData.subtitles = resp.tracks.map((track: { file: any; label: any; kind: any }) => ({
+        url: track.file,
+        lang: track.label ? track.label : track.kind,
+      }));
 
       return {
         intro: extractedData.intro,
         outro: extractedData.outro,
         sources: extractedData.sources,
         subtitles: extractedData.subtitles,
-      };
+      } satisfies ISource;
     } catch (err) {
       throw err;
     }
