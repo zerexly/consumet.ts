@@ -710,8 +710,9 @@ function transformURL(url: string) {
 }
 
 async function megaCloudKey() {
+  const ts = Date.now();
   const resp = await fetch(
-    'https://raw.githubusercontent.com/carlosesteven/e1-player-deobf/main/output/key.json'
+    `https://raw.githubusercontent.com/carlosesteven/e1-player-deobf/main/output/key.json?v=${ts}`
   );
   const data = await resp.json();
   return data.decryptKey;
@@ -776,6 +777,8 @@ export async function getSources(embed_url: string, site: string) {
     const str = btoa(String.fromCharCode.apply(null, new Uint8Array(Q8)));
 
     const apiKey = await megaCloudKey();
+
+    console.log('apiKey: ', apiKey);
 
     const keyToUse = !apiKey || apiKey.trim() === '' ? str : apiKey;
 

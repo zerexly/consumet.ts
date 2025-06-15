@@ -655,7 +655,8 @@ function transformURL(url) {
     return null;
 }
 async function megaCloudKey() {
-    const resp = await fetch('https://raw.githubusercontent.com/carlosesteven/e1-player-deobf/main/output/key.json');
+    const ts = Date.now();
+    const resp = await fetch(`https://raw.githubusercontent.com/carlosesteven/e1-player-deobf/main/output/key.json?v=${ts}`);
     const data = await resp.json();
     return data.decryptKey;
 }
@@ -714,6 +715,7 @@ async function getSources(embed_url, site) {
         // @ts-ignore
         const str = btoa(String.fromCharCode.apply(null, new Uint8Array(Q8)));
         const apiKey = await megaCloudKey();
+        console.log('apiKey: ', apiKey);
         const keyToUse = !apiKey || apiKey.trim() === '' ? str : apiKey;
         // @ts-ignore
         resp_json.sources = M(resp_json.sources, keyToUse);
