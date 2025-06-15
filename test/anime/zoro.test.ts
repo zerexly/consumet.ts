@@ -141,8 +141,6 @@ test('returns a filled object of episode sources', async () => {
   const data = await zoro.fetchEpisodeSources(info.episodes![0].id); // Overlord IV episode 1 id
   expect(data.sources).not.toEqual([]);
   expect(data.headers).not.toBeNull();
-
-  console.log('Episode 1 sources:', JSON.stringify(data, null, 2));
 });
 
 test('returns a filled object of episode sources of multiple episodes', async () => {
