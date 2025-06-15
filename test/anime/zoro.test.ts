@@ -154,9 +154,6 @@ test('returns a filled object of episode sources of multiple episodes', async ()
   );
   expect(data1.sources).not.toEqual([]);
   expect(data2.sources).not.toEqual([]);
-
-  console.log('Episode 1 sources:', JSON.stringify(data1, null, 2));
-  console.log('Episode 2 sources:', JSON.stringify(data2, null, 2));
 });
 
 test('returns a filled object of anime data with: status, genres, season and japaneseTitle', async () => {

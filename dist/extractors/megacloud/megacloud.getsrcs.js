@@ -655,9 +655,9 @@ function transformURL(url) {
     return null;
 }
 async function megaCloudKey() {
-    const resp = await fetch('https://raw.githubusercontent.com/carlosesteven/e1-player-deobf/main/key.json');
+    const resp = await fetch('https://raw.githubusercontent.com/carlosesteven/e1-player-deobf/main/output/key.json');
     const data = await resp.json();
-    return data.megacloud;
+    return data.decryptKey;
 }
 async function getSources(embed_url, site) {
     var _b, _c;
