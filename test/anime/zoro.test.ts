@@ -134,7 +134,7 @@ test('returns a filled object of anime data', async () => {
   expect(data).not.toBeNull();
   expect(data.description).not.toBeNull();
   expect(data.episodes).not.toEqual([]);
-});*/
+});
 
 test('returns a filled object of episode sources', async () => {
   const res = await zoro.search('Overlord IV');
@@ -158,6 +158,14 @@ test('returns a filled object of episode sources of multiple episodes', async ()
 
   console.log('data1: ', data1);
   console.log('data2: ', data2);
+});
+*/
+
+test('returns a filled object of episode sources of multiple episodes', async () => {
+  const data1 = await zoro.fetchEpisodeSources(
+    'rezero-starting-life-in-another-world-season-3-19301$episode$128356$both'
+  );
+  expect(data1.sources).not.toEqual([]);
 });
 
 /*

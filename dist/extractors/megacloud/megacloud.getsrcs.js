@@ -663,6 +663,7 @@ async function megaCloudKey() {
 async function getSources(embed_url, site) {
     var _b, _c;
     await getMeta(embed_url, site);
+    console.log('\n\n- embed_url: ', embed_url);
     let xrax = (_b = embed_url.split('/').pop()) === null || _b === void 0 ? void 0 : _b.split('?').shift();
     let regx = /https:\/\/[a-zA-Z0-9.]*/;
     let base_url = (_c = embed_url.match(regx)) === null || _c === void 0 ? void 0 : _c[0];
@@ -694,7 +695,7 @@ async function getSources(embed_url, site) {
                     '&b=' +
                     browser_version;
         }
-        // console.log('getSourcesUrl: ', getSourcesUrl);
+        console.log('\n\n- getSourcesUrl: ', getSourcesUrl);
         let resp_json = await (await fetch(getSourcesUrl, {
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36',
@@ -706,6 +707,7 @@ async function getSources(embed_url, site) {
             mode: 'cors',
         })).json();
         //let encrypted = resp_json.sources;
+        console.log('\n\n- resp_json:', resp_json);
         let Q3 = fake_window.localStorage.kversion;
         let Q1 = z(Q3);
         let Q5 = fake_window.navigate();
