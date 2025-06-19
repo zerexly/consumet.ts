@@ -767,26 +767,34 @@ export async function getSources(embed_url: string, site: string) {
         mode: 'cors',
       })
     ).json();
-    //let encrypted = resp_json.sources;
-    console.log('\n\n- resp_json:', resp_json);
 
-    let Q3 = fake_window.localStorage.kversion;
-    let Q1 = z(Q3);
-    let Q5 = fake_window.navigate();
-    Q5 = new Uint8Array(Q5);
-    let Q8: any;
-    Q8 = resp_json.t != 0 ? (i(Q5, Q1), Q5) : ((Q8 = resp_json.k), i(Q8, Q1), Q8);
+    const data = await resp_json;
+
+    var keyToUse = '';
+
+    if (data && data.sources) {
+      keyToUse = await megaCloudKey();
+    } else {
+      let Q3 = fake_window.localStorage.kversion;
+      let Q1 = z(Q3);
+      let Q5 = fake_window.navigate();
+      Q5 = new Uint8Array(Q5);
+      let Q8: any;
+      Q8 = resp_json.t != 0 ? (i(Q5, Q1), Q5) : ((Q8 = resp_json.k), i(Q8, Q1), Q8);
+      // @ts-ignore
+      const str = btoa(String.fromCharCode.apply(null, new Uint8Array(Q8)));
+      const apiKey = await megaCloudKey();
+      keyToUse = !apiKey || apiKey.trim() === '' ? str : apiKey;
+    }
+
+    console.log('\n\n- data.sources:', data.sources);
+
+    console.log('\n\n- Key: ', keyToUse);
+
     // @ts-ignore
-    const str = btoa(String.fromCharCode.apply(null, new Uint8Array(Q8)));
+    resp_json.sources = M(data.sources, keyToUse) as extractedSources[];
 
-    const apiKey = await megaCloudKey();
-
-    console.log('apiKey: ', apiKey);
-
-    const keyToUse = !apiKey || apiKey.trim() === '' ? str : apiKey;
-
-    // @ts-ignore
-    resp_json.sources = M(resp_json.sources, keyToUse) as extractedSources[];
+    console.log('\n\n- resp_json.sources:', resp_json.sources);
 
     return resp_json;
   } catch (err) {
