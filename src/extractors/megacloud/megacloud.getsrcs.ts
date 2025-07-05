@@ -712,10 +712,10 @@ function transformURL(url: string) {
 async function megaCloudKey() {
   const ts = Date.now();
   const resp = await fetch(
-    `https://raw.githubusercontent.com/carlosesteven/e1-player-deobf/main/output/key.json?v=${ts}`
+    `https://raw.githubusercontent.com/yogesh-hacker/MegacloudKeys/refs/heads/main/keys.json`
   );
   const data = await resp.json();
-  return data.decryptKey;
+  return data.mega;
 }
 
 export async function getSources(embed_url: string, site: string) {
